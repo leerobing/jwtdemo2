@@ -11,14 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/members")
 public class MemberController {
-    private final MemberService memberService;
 
+    private final MemberService memberService;
 
     @PostMapping("/join")
     public String join(@RequestBody MemberLoginRequestDto memberLoginRequestDto){
@@ -38,12 +39,11 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public TokenInfo login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+    public Optional<TokenInfo> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
         String memberId = memberLoginRequestDto.getMemberId();
         String password = memberLoginRequestDto.getPassword();
-        TokenInfo tokenInfo = memberService.login(memberId, password);
-        log.info("token = {}",tokenInfo);
-        return tokenInfo;
+        TokenInfo tokenInfo = memberService.login(memberId, password).orElseThrow(() -> new IllegalArgumentException("회원없음"));
+        return Optional.ofNullable(tokenInfo);
     }
 
     @PostMapping("/test")
